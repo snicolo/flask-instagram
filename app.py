@@ -15,15 +15,15 @@ def igtag():
     from InstagramAPI import InstagramAPI
     username = request.args.get('user')
     password = request.args.get('pass')
-    tag_search = request.args.get('tag')
+    
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
-    
+    tag_search= request.args.get('tag')
     InstagramAPI.getHashtagFeed(tag_search)
     time.sleep(1)
-    result1 = InstagramAPI.LastJson
+    result = InstagramAPI.LastJson
     #print(result)
-    return jsonify(result1)
+    return jsonify(result)
 
 @app.route('/igloc', methods=['get'])
 def igloc():
