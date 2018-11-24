@@ -38,7 +38,31 @@ def igloc():
     result = InstagramAPI.LastJson
     #print(result)
     return jsonify(result)
-         
+
+@app.route('/igfollower', methods=['get'])
+def igfollower():
+    from InstagramAPI import InstagramAPI
+    username = request.args.get('user')
+    password = request.args.get('pass')
+    InstagramAPI = InstagramAPI(username, password)
+    InstagramAPI.login()
+    user_name = request.args.get('username')
+    InstagramAPI.searchUsername(user_name)
+    username_id = InstagramAPI.LastJson["user"]["pk"]
+
+    followers   = []
+    next_max_id = True
+    while next_max_id:
+     print next_max_id
+ 
+     if next_max_id == True: next_max_id=''
+     _ = InstagramAPI.getUserFollowers(username_id,maxid=next_max_id)
+     followers.extend ( InstagramAPI.LastJson.get('users',[]))
+     next_max_id = InstagramAPI.LastJson.get('next_max_id','')
+     time.sleep(1)
+    
+    followers_list=followers
+    return jsonify(followers_list)
 
 if __name__ == "__main__":
     app.run()
