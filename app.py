@@ -33,8 +33,13 @@ def igloc():
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
     location = request.args.get('loc')
+    locid = request.args.get('locid') 
+    #search by name
     place= InstagramAPI.searchLocation(location)
     InstagramAPI.getLocationFeed(place)
+    #search by location id
+    if not location:
+        InstagramAPI.getLocationFeed(locid)
     time.sleep(1)
     result = InstagramAPI.LastJson
     #print(result)
