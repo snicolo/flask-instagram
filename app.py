@@ -1,35 +1,61 @@
 from flask import Flask
 from flask import Flask, render_template, request, jsonify, json
+from flask_cors import CORS, cross_origin
 
 import time
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def main():
     #return "Welcome!"
     return render_template('index.html')
 
-@app.route('/igtag', methods=['get'])
+@app.route('/igtag', methods=['GET', 'POST'])
 def igtag():
     from InstagramAPI import InstagramAPI
-    username = request.args.get('user')
-    password = request.args.get('pass')
+    if request.method == 'GET':
+       username = request.args.get('user')
+       password = request.args.get('pass')
+    else:
+        username = request.values.get('users')
+        password = request.values.get('passws')
     
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
     tag_search= request.args.get('tag')
-    InstagramAPI.getHashtagFeed(tag_search)
+    InstagramAPI.tagFeed(tag_search)
     time.sleep(1)
     result = InstagramAPI.LastJson
-    #print(result)
-    return jsonify(result)
+    
+    #uncomment to get the full json response
+    #jsonify(result) 
 
-@app.route('/igloc', methods=['get'])
+    #get latitude, longitude and label from location
+    loc = []
+   
+    for lo in result["items"]:
+       try:
+          loc.append({"lat": lo['location']['lat'], "lng":lo['location']['lng'], "label": lo['location']['name']})
+       except KeyError: 
+              pass
+       
+    return jsonify(loc)
+
+  
+
+
+
+@app.route('/igloc', methods=['GET', 'POST'])
 def igloc():
     from InstagramAPI import InstagramAPI
-    username = request.args.get('user')
-    password = request.args.get('pass')
+    if request.method == 'GET':
+       username = request.args.get('user')
+       password = request.args.get('pass')
+    else:
+        username = request.values.get('users')
+        password = request.values.get('passws')
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
     location = request.args.get('loc')
@@ -42,14 +68,28 @@ def igloc():
         InstagramAPI.getLocationFeed(locid)
     time.sleep(1)
     result = InstagramAPI.LastJson
-    #print(result)
-    return jsonify(result)
+     
+    #uncomment to get the full json response
+    #jsonify(result) 
 
-@app.route('/igfollower', methods=['get'])
+    #get only latitude, longitude and label from location
+    loc = []
+    
+    for lo in result["items"]:
+        loc.append({"lat": lo['location']['lat'],"lng": lo['location']['lng'], "label": lo['location']['name']})
+         
+    return jsonify(loc)
+
+@app.route('/igfollower', methods=['GET', 'POST'])
 def igfollower():
     from InstagramAPI import InstagramAPI
-    username = request.args.get('user')
-    password = request.args.get('pass')
+    if request.method == 'GET':
+       username = request.args.get('user')
+       password = request.args.get('pass')
+    else:
+        username = request.values.get('users')
+        password = request.values.get('passws')
+    
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
     user_name = request.args.get('username')
@@ -68,7 +108,11 @@ def igfollower():
      time.sleep(1)
     
     followers_list=followers
+    
     return jsonify(followers_list)
 
+
+
+        
 if __name__ == "__main__":
     app.run()
