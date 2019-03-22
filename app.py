@@ -153,6 +153,58 @@ def igfollowing():
     return jsonify(followings_list)
 
 
+@app.route('/igfeed', methods=['GET', 'POST'])
+def igfeed():
+    from InstagramAPI import InstagramAPI
+    if request.method == 'GET':
+       username = request.args.get('user')
+       password = request.args.get('pass')
+       usertofind = request.args.get('usertofind')
+    else:
+        username = request.values.get('users')
+        password = request.values.get('passws')
+    
+    InstagramAPI = InstagramAPI(username, password)
+    InstagramAPI.login()
+
+    user_name = usertofind
+    InstagramAPI.searchUsername(user_name)
+    username_id = InstagramAPI.LastJson["user"]["pk"]
+   
+ 
+   # InstagramAPI.getTotalUserFeed(username_id)
+  
+    #result = InstagramAPI.LastJson 
+    #next_max_id = InstagramAPI.LastJson.get('next_max_id','')
+   
+
+    myposts=[]
+    has_more_posts = True
+    max_id=""
+
+    while has_more_posts:
+     InstagramAPI.getSelfUserFeed(maxid=max_id)
+     if InstagramAPI.LastJson['more_available'] is not True:
+        has_more_posts = False #stop condition
+        print "stopped"
+    
+    max_id = InstagramAPI.LastJson.get('next_max_id','')
+    myposts.extend(InstagramAPI.LastJson['items']) #merge lists
+    time.sleep(2) # Slows the script down to avoid flooding the servers 
+    
+
+
+    loc=[]
+
+    for lo in result["items"]:
+       try:
+        loc.append({"lat": lo['location']['lat'], "lng":lo['location']['lng'], "label": lo['location']['name']})
+       except KeyError: 
+              pass
+
+    
+    return jsonify(loc)
+
 
         
 if __name__ == "__main__":
