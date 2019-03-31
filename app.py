@@ -171,34 +171,15 @@ def igfeed():
     InstagramAPI.searchUsername(user_name)
     username_id = InstagramAPI.LastJson["user"]["pk"]
    
- 
-   # InstagramAPI.getTotalUserFeed(username_id)
-  
-    #result = InstagramAPI.LastJson 
-    #next_max_id = InstagramAPI.LastJson.get('next_max_id','')
-   
-
-    myposts=[]
-    has_more_posts = True
-    max_id=""
-
-    while has_more_posts:
-     InstagramAPI.getSelfUserFeed(maxid=max_id)
-     if InstagramAPI.LastJson['more_available'] is not True:
-        has_more_posts = False #stop condition
-        print "stopped"
+    result= InstagramAPI.getTotalUserFeed(username_id)
+    time.sleep(2)
     
-    max_id = InstagramAPI.LastJson.get('next_max_id','')
-    myposts.extend(InstagramAPI.LastJson['items']) #merge lists
-    time.sleep(2) # Slows the script down to avoid flooding the servers 
     
 
-
-    loc=[]
-
-    for lo in result["items"]:
+    loc = []
+    for u in result:
        try:
-        loc.append({"lat": lo['location']['lat'], "lng":lo['location']['lng'], "label": lo['location']['name']})
+        loc.append({"lat": u['location']['lat'], "lng":u['location']['lng'], "label": u['location']['name']})
        except KeyError: 
               pass
 
