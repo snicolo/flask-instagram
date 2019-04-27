@@ -20,9 +20,9 @@ def igtag():
        password = request.args.get('pass')
        tag = request.args.get('tag')
     else:
-        username = request.values.get('users')
-        password = request.values.get('passws')
-        tag = request.values.get('tags')
+        username = request.values.get('user')
+        password = request.values.get('passw')
+        tag = request.values.get('tag')
     
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
@@ -39,7 +39,7 @@ def igtag():
    
     for lo in result["items"]:
        try:
-          loc.append({"lat": lo['location']['lat'], "lng":lo['location']['lng'], "label": lo['location']['name']})
+          loc.append({"lat": lo['location']['lat'], "lng":lo['location']['lng'], "label": lo['location']['name'], "username": lo['user']['username']})
        except KeyError: 
               pass
        
@@ -58,34 +58,38 @@ def igloc():
        location = request.args.get('loc')
        locid = request.args.get('locid') 
     else:
-        username = request.values.get('users')
-        password = request.values.get('passws')
-        location = request.values.get('locs')
-        locid = request.values.get('locids')
+       username = request.values.get('users')
+       password = request.values.get('passws')
+       location = request.values.get('locs')
+       locid = request.values.get('locids')
     InstagramAPI = InstagramAPI(username, password)
     InstagramAPI.login()
     
     #search by name
-    place= InstagramAPI.searchLocation(location)
+    place=InstagramAPI.searchLocation(location)
     InstagramAPI.getLocationFeed(place)
     #search by location id
     if not location:
         InstagramAPI.getLocationFeed(locid)
     time.sleep(1)
     result = InstagramAPI.LastJson
+    
+  
      
+    
     #uncomment to get the full json response
-    #jsonify(result) 
+    return jsonify(result) 
 
     #get only latitude, longitude and label from location
-    loc = []
+    #loc = []
     
-    for lo in result["items"]:
-        loc.append({"lat": lo['location']['lat'],"lng": lo['location']['lng'], "label": lo['location']['name']})
+    #for lo in result['items']:
+     #   loc.append({"lat": lo['location']['lat'],"lng": lo['location']['lng'], "label": lo['location']['name'], "username": lo['user']['username']})
          
-    return jsonify(loc)
+    #return jsonify(loc)
 
-@app.route('/igfollower', methods=['GET', 'POST'])
+
+@app.route('/igfoll', methods=['GET', 'POST'])
 def igfollower():
     from InstagramAPI import InstagramAPI
     if request.method == 'GET':
@@ -102,7 +106,7 @@ def igfollower():
     user_name = usertofind
     InstagramAPI.searchUsername(user_name)
     username_id = InstagramAPI.LastJson["user"]["pk"]
-
+    #get followers
     followers   = []
     next_max_id = True
     while next_max_id:
@@ -116,27 +120,13 @@ def igfollower():
     
     followers_list=followers
     
-    return jsonify(followers_list)
-
-
-@app.route('/igfollowing', methods=['GET', 'POST'])
-def igfollowing():
-    from InstagramAPI import InstagramAPI
-    if request.method == 'GET':
-       username = request.args.get('user')
-       password = request.args.get('pass')
-       usertofind = request.args.get('usertofind')
-    else:
-        username = request.values.get('users')
-        password = request.values.get('passws')
-        usertofind = request.values.get('usertofind')
     
-    InstagramAPI = InstagramAPI(username, password)
-    InstagramAPI.login()
-    user_name = usertofind
-    InstagramAPI.searchUsername(user_name)
-    username_id = InstagramAPI.LastJson["user"]["pk"]
+    flwe=[]
+    #filter full name and username in followers list
+    for name in followers_list:
+        flwe.append({"username": name['username'], "fullname": name['full_name']})
 
+    #get followings
     followings   = []
     next_max_id = True
     while next_max_id:
@@ -148,9 +138,20 @@ def igfollowing():
      next_max_id = InstagramAPI.LastJson.get('next_max_id','')
      time.sleep(1)
     
+    flwi=[]
     followings_list=followings
-    
-    return jsonify(followings_list)
+
+    #filter full name and username in followings list
+    for name in followings_list:
+        flwi.append({"username": name['username'], "fullname": name['full_name']})
+       
+   
+
+    foll=[]
+
+    foll.append({"following": flwi, "follower":flwe})
+
+    return jsonify(foll)
 
 
 @app.route('/igfeed', methods=['GET', 'POST'])
@@ -168,15 +169,25 @@ def igfeed():
     InstagramAPI.login()
 
     user_name = usertofind
+    
     InstagramAPI.searchUsername(user_name)
+    
     username_id = InstagramAPI.LastJson["user"]["pk"]
-   
+    x =InstagramAPI.LastJson["user"]["full_name"]
+    n =InstagramAPI.LastJson["user"]["biography"]
+    y = InstagramAPI.LastJson["user"]["follower_count"]
+    z = InstagramAPI.LastJson["user"]["following_count"]
+    
+    
+    
+
     result= InstagramAPI.getTotalUserFeed(username_id)
+    print(result)
     time.sleep(2)
     
     
 
-    loc = []
+    loc = [{"name": x, "bio": n, "followers": y, "following": z}]
     for u in result:
        try:
         loc.append({"lat": u['location']['lat'], "lng":u['location']['lng'], "label": u['location']['name']})
