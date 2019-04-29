@@ -6,7 +6,7 @@ import time
 
 app = Flask(__name__)
 CORS(app)
-
+app.config['JSON_AS_ASCII'] = False
 @app.route("/")
 def main():
     #return "Welcome!"
@@ -171,7 +171,7 @@ def igfeed():
     user_name = usertofind
     
     InstagramAPI.searchUsername(user_name)
-    
+    #filter info about user
     username_id = InstagramAPI.LastJson["user"]["pk"]
     x =InstagramAPI.LastJson["user"]["full_name"]
     n =InstagramAPI.LastJson["user"]["biography"]
@@ -182,18 +182,16 @@ def igfeed():
     
 
     result= InstagramAPI.getTotalUserFeed(username_id)
-    print(result)
+    
     time.sleep(2)
     
-    
-
-    loc = [{"name": x, "bio": n, "followers": y, "following": z}]
+    loc = [{"name": x, "bio": n, "followers": y, "followings": z}]
+    #filter lat, lng, label and time
     for u in result:
        try:
-        loc.append({"lat": u['location']['lat'], "lng":u['location']['lng'], "label": u['location']['name']})
+        loc.append({"lat": u['location']['lat'], "lng":u['location']['lng'], "label": u['location']['name'], "time": u['taken_at']})
        except KeyError: 
               pass
-
     
     return jsonify(loc)
 
