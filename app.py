@@ -78,15 +78,15 @@ def igloc():
      
     
     #uncomment to get the full json response
-    return jsonify(result) 
+    #return jsonify(result) 
 
     #get only latitude, longitude and label from location
-    #loc = []
+    loc = []
     
-    #for lo in result['items']:
-     #   loc.append({"lat": lo['location']['lat'],"lng": lo['location']['lng'], "label": lo['location']['name'], "username": lo['user']['username']})
+    for lo in result['items']:
+        loc.append({"lat": lo['location']['lat'],"lng": lo['location']['lng'], "label": lo['location']['name'],"address": lo['location']['address']})
          
-    #return jsonify(loc)
+    return jsonify(loc)
 
 
 @app.route('/igfoll', methods=['GET', 'POST'])
