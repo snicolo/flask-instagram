@@ -110,7 +110,7 @@ def igfollower():
     followers   = []
     next_max_id = True
     while next_max_id:
-     print next_max_id
+     print (next_max_id)
  
      if next_max_id == True: next_max_id=''
      _ = InstagramAPI.getUserFollowers(username_id,maxid=next_max_id)
@@ -130,7 +130,7 @@ def igfollower():
     followings   = []
     next_max_id = True
     while next_max_id:
-     print next_max_id
+     print (next_max_id)
  
      if next_max_id == True: next_max_id=''
      _ = InstagramAPI.getUserFollowings(username_id,maxid=next_max_id)
